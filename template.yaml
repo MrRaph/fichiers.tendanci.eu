@@ -12,10 +12,10 @@ Resources:
 
   WebsiteBucket:
     Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: PublicRead
-      WebsiteConfiguration:
-        IndexDocument: index.html
+    # Properties:
+      #AccessControl: PublicRead
+      #WebsiteConfiguration:
+      #  IndexDocument: index.html
 
   WebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -31,6 +31,62 @@ Resources:
           - s3:PutObjectAcl
           - s3:DeleteObject
           Resource: !Sub arn:aws:s3:::${WebsiteBucket}/*
+        - Action:
+            - s3:GetObject
+          Effect: Allow
+          Resource: !Join [ "", [ "arn:aws:s3:::", !Ref WebsiteBucket, "/*" ] ]
+          Principal:
+            CanonicalUser: !GetAtt TheCloudFrontOriginAccessIdentity.S3CanonicalUserId
+
+  WebsiteCloudfront:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+    - WebsiteBucket
+    Properties:
+      DistributionConfig:
+        Comment: Cloudfront Distribution pointing to S3 bucket
+        Origins:
+        - DomainName: !Join [ "", [ !Ref WebsiteBucket, ".s3-eu-west-1.amazonaws.com" ] ]
+          Id: S3Origin
+          S3OriginConfig:
+              OriginAccessIdentity:
+                !Join [ "", [ "origin-access-identity/cloudfront/", !Ref TheCloudFrontOriginAccessIdentity ] ]
+        Enabled: true
+        HttpVersion: 'http2'
+        DefaultRootObject: index.html
+        Aliases:
+        - 'fichier.tendanci.eu'
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          Compress: true
+          TargetOriginId: S3Origin
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: 'arn:aws:acm:us-east-1:587437228810:certificate/86387e72-33a0-480c-a1c8-e757ed361860'
+          SslSupportMethod: sni-only
+  TheCloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'CloudFront OAI for fichier.tendanci.eu'
+  # WebsiteDNSName:
+  #   Type: AWS::Route53::RecordSetGroup
+  #   Properties:
+  #     HostedZoneName: 'tendanci.eu.'
+  #     RecordSets:
+  #     - Name: 'fichier.tendanci.eu'
+  #       Type: A
+  #       AliasTarget:
+  #         HostedZoneId: Z2IP282KTO21XX
+  #         DNSName: !GetAtt [WebsiteCloudfront, DomainName]
 
   Table:
     Type: AWS::Serverless::SimpleTable
