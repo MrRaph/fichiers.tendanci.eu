@@ -325,3 +325,9 @@ Outputs:
   Website:
     Description: Website URL
     Value: !GetAtt WebsiteBucket.WebsiteURL
+  WebsiteBucket:
+    Description: Website Bucket
+    Value: !Ref WebsiteBucket
+  CloudFrontDistributionId:
+    Description: CloudFront Distribution ID
+    Value: !Ref WebsiteCloudfront

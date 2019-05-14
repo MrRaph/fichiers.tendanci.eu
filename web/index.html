@@ -6,11 +6,31 @@
         <title>Fichier</title>
 
         <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <script src="//cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
         
         <script src="js/aws-cognito-sdk.min.js"></script>
         <script src="js/amazon-cognito-identity.min.js"></script>
 
         <link rel="stylesheet" href="css/main.css" />
+        <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+        <link rel="stylesheet" href="//cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" />
+
+        <script>
+            var table;
+            // var updateTable = function( _data ) {
+            //     $('#file_list').DataTable( {
+            //         data: _data
+            //     });
+            // };
+            var tableAddRow = function(_row) {
+                table.row.add(_row).draw();
+            }
+
+            $(document).ready( function () {
+                table = $('#file_list').DataTable();
+            } );
+        </script>
     </head>
 
     <body>
@@ -46,7 +66,18 @@
             <p><a href="#" id="resend">Resend code</a></p>
         </div>
 
-        <div id="list"></div>
+        <div id="list">
+                <table id="file_list" class="display">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+        </div>
 
         <form id="uploadForm" method="post" enctype="multipart/form-data">
             <p>New file:&nbsp;</p>

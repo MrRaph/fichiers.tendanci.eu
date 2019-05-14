@@ -81,7 +81,7 @@ confirmButton.onclick = function() {
 
 function loadStuff() {
     show("list");
-    listDiv.innerHTML = "<p class='message'>Loading...</p>";
+    //listDiv.innerHTML = "<p class='message'>Loading...</p>";
 
     auth.refresh();
 
@@ -93,33 +93,41 @@ function loadStuff() {
         },
         success: function(data) {
             console.log("WIN");
-            console.log(data);
+            //console.log(data);
 
-            listDiv.innerHTML = "";
+            // listDiv.innerHTML = "";
+            dataArray = [];
 
             data.sort().forEach(function(record) {
-                var link = document.createElement("p");
-                link.href = "#";
-                link.innerHTML = record;
-                link.onclick = function() {
-                    getItem(record);
-                };
+                // var link = document.createElement("a");
+                // link.href = "#";
+                // link.innerHTML = record;
+                // link.onclick = function() {
+                //     getItem(record);
+                // };
 
-                var del = document.createElement("a");
-                del.href = "#";
-                del.innerHTML = "X";
-                del.onclick = function(e) {
-                    if(confirm("Are you sure you want to delete " + record)) {
-                        deleteItem(record);
-                    }
+                // var del = document.createElement("a");
+                // del.href = "#";
+                // del.innerHTML = "X";
+                // del.onclick = function(e) {
+                //     if(confirm("Are you sure you want to delete " + record)) {
+                //         deleteItem(record);
+                //     }
 
-                    e.stopPropagation();
-                    return false;
-                };
+                //     e.stopPropagation();
+                //     return false;
+                // };
 
-                link.appendChild(del);
+                // link.appendChild(del);
 
-                listDiv.appendChild(link);
+                // listDiv.appendChild(link);
+
+                //alert(record);
+
+                tableAddRow([
+                    '<a href="#" onclick="getItem(\''+record+'\');">' + record + '</a>',
+                    '<a href="#" onclick="deleteItem(\''+record+'\');">' + 'X' + '</a>'
+                ]);
             });
 
             if(data.length == 0) {
@@ -147,7 +155,9 @@ function getItem(name) {
             Authorization: localStorage.getItem("token")
         },
         success: function(data) {
-            window.location.href = data;
+            // window.location.href = data;
+            var win = window.open(data, '_blank');
+            win.focus();
         },
         error: function(err) {
             console.log("LOSE");
